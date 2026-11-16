@@ -1,5 +1,5 @@
 // ================= CONFIG =================
-const API = 'http://localhost:5000/api'; // backend URL
+const API = 'https://everyday-expenses-2q45.vercel.app/api'; // backend URL
 
 // Every fetch carries the httpOnly session cookie — never localStorage
 const api = async (path, options = {}) => {
