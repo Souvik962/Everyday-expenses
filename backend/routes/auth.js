@@ -14,10 +14,12 @@ const authLimiter = rateLimit({
 });
 router.use(authLimiter);
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const cookieOptions = {
-    httpOnly: true,   // ⛔ JavaScript cannot access the token (XSS protection)
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: 'strict', // ⛔ CSRF protection
+    httpOnly: true,
+    secure: isProd,                        // must be true when sameSite is 'none'
+    sameSite: isProd ? 'none' : 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
