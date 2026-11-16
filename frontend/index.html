@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>EveryDay Expense</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#121b33" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+
+    <!-- ============ AUTH ============ -->
+    <div id="authPage" class="auth-page">
+        <div class="auth-art" aria-hidden="true">
+            <div class="auth-art-inner">
+                <svg viewBox="0 0 200 200" class="auth-ring">
+                    <circle cx="100" cy="100" r="80" class="r-track" />
+                    <circle cx="100" cy="100" r="80" class="r-fill" />
+                </svg>
+                <p class="auth-quote">₹ 1,240 <small>left to spend today</small></p>
+            </div>
+        </div>
+        <div class="auth-card">
+            <div class="brand"><span class="brand-mark">₹</span> EveryDay Expense</div>
+
+            <form id="loginForm" class="auth-form">
+                <h1>Welcome back</h1>
+                <p class="auth-sub">Sign in to see where your money went.</p>
+                <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email" />
+                <input type="password" id="loginPassword" placeholder="Password" required
+                    autocomplete="current-password" />
+                <button type="submit" class="btn-primary">Sign in</button>
+                <p class="auth-switch">No account? <a href="#" id="showSignup">Create one</a></p>
+            </form>
+
+            <form id="signupForm" class="auth-form hidden">
+                <h1>Start tracking</h1>
+                <p class="auth-sub">Free, private, takes under a minute.</p>
+                <input type="text" id="signupName" placeholder="Full name" required maxlength="50" />
+                <input type="email" id="signupEmail" placeholder="Email" required autocomplete="email" />
+                <input type="password" id="signupPassword" placeholder="Password (min 8 characters)" required
+                    minlength="8" autocomplete="new-password" />
+                <input type="password" id="signupConfirm" placeholder="Confirm password" required
+                    autocomplete="new-password" />
+                <button type="submit" class="btn-primary">Create account</button>
+                <p class="auth-switch">Have an account? <a href="#" id="showLogin">Sign in</a></p>
+            </form>
+
+            <p class="auth-secure">Your session is protected by an httpOnly cookie.</p>
+        </div>
+    </div>
+
+    <!-- ============ APP ============ -->
+    <div id="app" class="app hidden">
+        <aside class="sidebar">
+            <div class="brand"><span class="brand-mark">₹</span> EveryDay</div>
+            <button class="user-chip" id="userChip" aria-label="Open profile"><span class="avatar"
+                    id="chipAvatar">?</span><span><strong id="chipName">You</strong><small
+                        id="chipEmail"></small></span></button>
+            <nav>
+                <button class="nav-btn active" data-view="dashboard"><svg viewBox="0 0 24 24">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                    </svg><span>Dashboard</span></button>
+                <button class="nav-btn" data-view="expenses"><svg viewBox="0 0 24 24">
+                        <path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" />
+                    </svg><span>Expenses</span></button>
+                <button class="nav-btn" data-view="add"><svg viewBox="0 0 24 24">
+                        <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
+                    </svg><span>Add</span></button>
+                <button class="nav-btn" data-view="reports"><svg viewBox="0 0 24 24">
+                        <path d="M5 20V10h3v10H5zm5.5 0V4h3v16h-3zM16 20v-7h3v7h-3z" />
+                    </svg><span>Reports</span></button>
+                <button class="nav-btn" data-view="profile"><svg viewBox="0 0 24 24">
+                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z" />
+                    </svg><span>Profile</span></button>
+            </nav>
+            <button class="nav-btn" id="themeBtn"><svg viewBox="0 0 24 24">
+                    <path d="M12 3a9 9 0 1 0 9 9c0-.5 0-1-.1-1.4A5.5 5.5 0 0 1 13.4 3.1C13 3 12.5 3 12 3z" />
+                </svg><span>Theme</span></button>
+            <button class="nav-btn logout" id="logoutBtn"><svg viewBox="0 0 24 24">
+                    <path d="M10 4H4v16h6v-2H6V6h4V4zm6 4-1.4 1.4L17.2 12H9v2h8.2l-2.6 2.6L16 18l5-5-5-5z" />
+                </svg><span>Log out</span></button>
+        </aside>
+
+        <main class="main">
+            <!-- DASHBOARD -->
+            <section id="view-dashboard" class="view">
+                <header class="page-head">
+                    <p id="todayLabel" class="muted"></p>
+                    <div class="head-row">
+                        <h2>Your month at a glance</h2><input type="month" id="monthPicker" aria-label="Choose month" />
+                    </div>
+                </header>
+
+                <div class="hero">
+                    <div class="ring-wrap">
+                        <svg viewBox="0 0 200 200" class="ring" role="img" aria-label="Budget used">
+                            <circle cx="100" cy="100" r="82" class="r-track" />
+                            <circle cx="100" cy="100" r="82" class="r-fill" id="heroRing" />
+                        </svg>
+                        <div class="ring-center"><strong id="heroPct">0%</strong><span>of budget used</span></div>
+                    </div>
+                    <div class="hero-text">
+                        <p class="hero-label" id="heroLabel">You can spend about</p>
+                        <p class="hero-big"><span id="heroPerDay">₹0</span><small> / day</small></p>
+                        <p id="heroNote" class="hero-note"></p>
+                        <div class="pills"><span id="momChip" class="pill"></span><span id="streakChip"
+                                class="pill good hidden"></span></div>
+                    </div>
+                </div>
+
+                <div class="kpis">
+                    <div class="kpi"><span>Today</span><strong id="kpiToday">—</strong></div>
+                    <div class="kpi"><span>This month</span><strong id="kpiMonth">—</strong></div>
+                    <div class="kpi"><span>Budget left</span><strong id="kpiLeft">—</strong></div>
+                    <div class="kpi"><span>Budget used</span><strong id="kpiUsed">—</strong></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Where it went</h3><canvas id="donutChart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>Last 7 days</h3><canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Recent transactions</h3>
+                    <div class="table-wrap">
+                        <table id="recentTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Note</th>
+                                    <th class="amount">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EXPENSES -->
+            <section id="view-expenses" class="view hidden">
+                <header class="page-head">
+                    <h2>All expenses</h2>
+                </header>
+                <div class="card">
+                    <div class="filters"><input type="search" id="fSearch" placeholder="Search notes or categories"
+                            aria-label="Search" /><select id="fCat" aria-label="Filter by category">
+                            <option value="">All categories</option>
+                        </select><button type="button" id="exportBtn" class="btn-ghost">Export CSV</button><button
+                            type="button" id="importBtn" class="btn-ghost">Import CSV</button><input type="file"
+                            id="importFile" accept=".csv,text/csv" hidden /></div>
+                    <div class="table-wrap">
+                        <table id="allTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Note</th>
+                                    <th class="amount">Amount</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADD -->
+            <section id="view-add" class="view hidden">
+                <header class="page-head">
+                    <h2>Add an expense</h2>
+                </header>
+                <div class="forms">
+                    <form id="addForm" class="card form-card">
+                        <label>Amount (₹)<input type="number" id="expAmount" min="1" step="0.01" required
+                                placeholder="0" class="big-input" /></label>
+                        <label>Category
+                            <select id="expCategory" required>
+                                <option>Food</option>
+                                <option>Transport</option>
+                                <option>Shopping</option>
+                                <option>Bills</option>
+                                <option>Health</option>
+                                <option>Entertainment</option>
+                                <option>Other</option>
+                            </select>
+                        </label>
+                        <label>Date<input type="date" id="expDate" required /></label>
+                        <label>Note (optional)<input type="text" id="expNote" list="noteList" maxlength="200"
+                                placeholder="e.g. Lunch with team" /></label>
+                        <button type="submit" class="btn-primary">Save expense</button>
+                    </form>
+
+                    <form id="budgetForm" class="card form-card">
+                        <h3>Monthly budget</h3>
+                        <label>Budget (₹)<input type="number" id="budgetInput" min="0" step="100" required /></label>
+                        <button type="submit" class="btn-primary">Update budget</button>
+                    </form>
+
+                    <form id="limitForm" class="card form-card">
+                        <h3>Category limits (₹)</h3>
+                        <div id="limitFields" class="limit-grid"></div>
+                        <button type="submit" class="btn-primary">Save limits</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- REPORTS -->
+            <section id="view-reports" class="view hidden">
+                <header class="page-head">
+                    <h2 id="repTitle">This month by category</h2>
+                </header>
+                <div class="card">
+                    <div id="reportList"></div>
+                </div>
+            </section>
+
+            <!-- PROFILE -->
+            <section id="view-profile" class="view hidden">
+                <header class="page-head">
+                    <h2>Profile</h2>
+                </header>
+                <div class="profile-hero">
+                    <div class="avatar lg" id="pAvatar">?</div>
+                    <div class="profile-id">
+                        <h2 id="pName"></h2>
+                        <p id="pEmail"></p>
+                        <div class="pills"><span class="pill" id="pSince"></span></div>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <div class="kpi"><span>Expenses logged</span><strong id="pCount">0</strong></div>
+                    <div class="kpi"><span>Total tracked</span><strong id="pTotal">₹0</strong></div>
+                    <div class="kpi"><span>Days with us</span><strong id="pDays">1</strong></div>
+                </div>
+                <div class="profile-grid">
+                    <form id="profileForm" class="card form-card">
+                        <h3>Personal details</h3>
+                        <label>Full name<input type="text" id="pNameInput" required maxlength="50" /></label>
+                        <label>Email<input type="email" id="pEmailInput" disabled /></label>
+                        <button type="submit" class="btn-primary">Save changes</button>
+                    </form>
+                    <form id="passwordForm" class="card form-card">
+                        <h3>Change password</h3>
+                        <label>Current password<input type="password" id="pwCurrent" required
+                                autocomplete="current-password" /></label>
+                        <label>New password<input type="password" id="pwNew" required minlength="8"
+                                autocomplete="new-password" /></label>
+                        <label>Confirm new password<input type="password" id="pwConfirm" required
+                                autocomplete="new-password" /></label>
+                        <button type="submit" class="btn-primary">Update password</button>
+                    </form>
+                    <div class="card form-card">
+                        <h3>Appearance</h3>
+                        <div class="seg"><button type="button" data-theme-choice="light">Light</button><button
+                                type="button" data-theme-choice="dark">Dark</button></div>
+                        <button type="button" id="logoutBtn2" class="btn-ghost">Log out</button>
+                    </div>
+                    <form id="deleteForm" class="card form-card danger">
+                        <h3>Delete account</h3>
+                        <p class="muted small">This permanently deletes your profile and every expense. It can't be
+                            undone.</p>
+                        <label>Confirm with your password<input type="password" id="delPassword" required
+                                autocomplete="current-password" /></label>
+                        <button type="submit" class="btn-danger">Delete my account</button>
+                    </form>
+                </div>
+            </section>
+
+            <footer>EveryDay Expense © 2026</footer>
+        </main>
+    </div>
+
+    <datalist id="noteList"></datalist>
+    <button id="fab" class="fab hidden" aria-label="Quick add expense">+</button>
+    <div id="expModal" class="modal hidden">
+        <form id="expForm" class="card form-card sheet">
+            <div class="sheet-head">
+                <h3 id="mTitle">Add expense</h3><button type="button" id="mCancel" class="del-btn"
+                    aria-label="Close">✕</button>
+            </div>
+            <input type="hidden" id="mId" />
+            <label>Amount (₹)<input type="number" id="mAmount" min="1" step="0.01" required class="big-input"
+                    placeholder="0" /></label>
+            <label>Category<select id="mCategory" required></select></label>
+            <label>Date<input type="date" id="mDate" required /></label>
+            <label>Note (optional)<input type="text" id="mNote" list="noteList" maxlength="200" /></label>
+            <button type="submit" class="btn-primary">Save expense</button>
+        </form>
+    </div>
+    <div id="toast" class="toast hidden" role="status"></div>
+    <script src="app.js"></script>
+</body>
+
+</html>
